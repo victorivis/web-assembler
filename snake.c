@@ -112,8 +112,11 @@ void cor_preta(Trio** cores){
 }
 
 void callback(void* arg){
+    static int sequenciaDirecoes[4] = {2,3,1,0};
+
     while(SDL_PollEvent(&evento)){
         if(evento.type == SDL_QUIT) rodar=0;
+        if(evento.type == SDL_MOUSEBUTTONDOWN) ultima_direcao = sequenciaDirecoes[ultima_direcao];
 
         if(evento.type == SDL_KEYDOWN){
             switch(evento.key.keysym.sym){
