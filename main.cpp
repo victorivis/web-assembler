@@ -33,7 +33,7 @@ minhaClasse::~minhaClasse(){
 minhaClasse exibirNaTela;
 
 
-void callback(void * arg){
+void loopPrincipal(void * arg){
     Context * context = static_cast<Context*>(arg);
     static int speed = 10;
 
@@ -104,7 +104,7 @@ int main(int argc, char** argv) {
 
     std::cout << "Inicio\n";
     
-    emscripten_set_main_loop_arg(callback, &context, -1, 1);
+    emscripten_set_main_loop_arg(loopPrincipal, &context, -1, 1);
 
     std::cout << "Fim\n";
     SDL_DestroyTexture(context.logo);

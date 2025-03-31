@@ -53,28 +53,29 @@ void adicionar_segmento(SDL_Rect** cobra, int num, Trio** cores){
 }
 
 void mover_cobra(SDL_Rect* cobra, int direcao){
-	if(novo_movimento)
-	for(int i=num_segmentos-1; i>0; i--){
-		int mov_x = cobra[i].x-cobra[i-1].x;
-		int mov_y = cobra[i].y-cobra[i-1].y;
+	if(novo_movimento){
+        for(int i=num_segmentos-1; i>0; i--){
+            int mov_x = cobra[i].x-cobra[i-1].x;
+            int mov_y = cobra[i].y-cobra[i-1].y;
 
-		if(mov_x){
-			if(mov_x>0){
-				cobra[i].x = (cobra[i].x+VEL)%WIDTH;
-			}
-			else{
-				cobra[i].x = (cobra[i].x-VEL+WIDTH)%WIDTH;
-			}
-		}
-		else{
-			if(mov_y>0){
-				cobra[i].y = (cobra[i].y+VEL)%HEIGHT;
-			}
-			else{
-				cobra[i].y = (cobra[i].y-VEL+HEIGHT)%HEIGHT;
-			}
-		}
-	}
+            if(mov_x){
+                if(mov_x>0){
+                    cobra[i].x = (cobra[i].x+VEL+WIDTH)%WIDTH;
+                }
+                else{
+                    cobra[i].x = (cobra[i].x-VEL+WIDTH)%WIDTH;
+                }
+            }
+            else{
+                if(mov_y>0){
+                    cobra[i].y = (cobra[i].y+VEL+HEIGHT)%HEIGHT;
+                }
+                else{
+                    cobra[i].y = (cobra[i].y-VEL+HEIGHT)%HEIGHT;
+                }
+            }
+        }
+    }
 	else
 		for(int i=num_segmentos-1; i>0; i--){
 			cobra[i].x = cobra[i-1].x;
@@ -83,8 +84,8 @@ void mover_cobra(SDL_Rect* cobra, int direcao){
 	
 	switch(direcao){
 		case 0: cobra[0].y = (cobra[0].y-VEL+HEIGHT)%HEIGHT; break;	
-		case 1: cobra[0].y = (cobra[0].y+VEL)%HEIGHT; break;	
-		case 2: cobra[0].x = (cobra[0].x+VEL)%WIDTH; break;	
+		case 1: cobra[0].y = (cobra[0].y+VEL+HEIGHT)%HEIGHT; break;	
+		case 2: cobra[0].x = (cobra[0].x+VEL+WIDTH)%WIDTH; break;	
 		case 3: cobra[0].x = (cobra[0].x-VEL+WIDTH)%WIDTH; break;
 	}
 }
@@ -111,7 +112,33 @@ void cor_preta(Trio** cores){
 	}
 }
 
-void callback(void* arg){
+void executarControles(char c){
+    switch(evento.key.keysym.sym){
+        case SDLK_ESCAPE: rodar=0; break;
+        case SDLK_UP: if(!restricao_movimento || (ultima_direcao!=0 && ultima_direcao!=1)) mover_cobra(segmentos_cobra, 0), ultima_direcao=0; break;	
+        case SDLK_DOWN: if(!restricao_movimento || (ultima_direcao!=0 && ultima_direcao!=1)) mover_cobra(segmentos_cobra, 1), ultima_direcao=1; break;	
+        case SDLK_RIGHT: if(!restricao_movimento || (ultima_direcao!=2 && ultima_direcao!=3)) mover_cobra(segmentos_cobra, 2), ultima_direcao=2; break;	
+        case SDLK_LEFT: if(!restricao_movimento || (ultima_direcao!=2 && ultima_direcao!=3)) mover_cobra(segmentos_cobra, 3), ultima_direcao=3; break;
+        
+        case SDLK_1: restricao_movimento = !restricao_movimento; printf("restricao de movimento: %d\n", restricao_movimento); break;
+        case SDLK_2: VEL+=2; printf("velocidade: %d\n", VEL); break;
+        case SDLK_3: VEL-=2; printf("velocidade: %d\n", VEL); break;
+        case SDLK_4: cor_preta(&cores); cobra_pisca=0; printf("descolorir\n");; break;
+        case SDLK_5: trocar_cores(&cores); cobra_pisca=0; printf("colorir\n"); break;
+        case SDLK_6: cobra_pisca = !cobra_pisca; printf("piscar: %d\n", cobra_pisca); break;
+        case SDLK_7: novo_movimento = !novo_movimento; printf("desmembramento: %d\n", novo_movimento); break;
+        case SDLK_8: adicionar_segmento(&segmentos_cobra, 3, &cores); break;
+        case SDLK_9: adicionar_segmento(&segmentos_cobra, -3, &cores); break;
+        case SDLK_EQUALS: delay+=1; printf("delay: %d\n", delay); break;
+        case SDLK_MINUS: if(delay>0) delay-=1; printf("delay: %d\n", delay); break;
+        case 'p': ultima_direcao=-1; break;
+        case 'c': modo_de_piscar = !modo_de_piscar; break;
+        case 'v': frequencia++; break;
+        case 'b': if(frequencia>1) frequencia--; break;
+    }
+}
+
+void loopPrincipal(void* arg){
     static int sequenciaDirecoes[4] = {2,3,1,0};
 
     while(SDL_PollEvent(&evento)){
@@ -119,29 +146,7 @@ void callback(void* arg){
         if(evento.type == SDL_MOUSEBUTTONDOWN) ultima_direcao = sequenciaDirecoes[ultima_direcao];
 
         if(evento.type == SDL_KEYDOWN){
-            switch(evento.key.keysym.sym){
-                case SDLK_ESCAPE: rodar=0; break;
-                case SDLK_UP: if(!restricao_movimento || (ultima_direcao!=0 && ultima_direcao!=1)) mover_cobra(segmentos_cobra, 0), ultima_direcao=0; break;	
-                case SDLK_DOWN: if(!restricao_movimento || (ultima_direcao!=0 && ultima_direcao!=1)) mover_cobra(segmentos_cobra, 1), ultima_direcao=1; break;	
-                case SDLK_RIGHT: if(!restricao_movimento || (ultima_direcao!=2 && ultima_direcao!=3)) mover_cobra(segmentos_cobra, 2), ultima_direcao=2; break;	
-                case SDLK_LEFT: if(!restricao_movimento || (ultima_direcao!=2 && ultima_direcao!=3)) mover_cobra(segmentos_cobra, 3), ultima_direcao=3; break;
-                
-                case SDLK_1: restricao_movimento = !restricao_movimento; break;
-                case SDLK_2: VEL+=2; printf("velocidade: %d\n", VEL); break;
-                case SDLK_3: VEL-=2; printf("velocidade: %d\n", VEL); break;
-                case SDLK_4: cor_preta(&cores); break;
-                case SDLK_5: trocar_cores(&cores); break;
-                case SDLK_6: cobra_pisca = !cobra_pisca; break;
-                case SDLK_7: novo_movimento = !novo_movimento; break;
-                case SDLK_8: adicionar_segmento(&segmentos_cobra, 3, &cores); break;
-                case SDLK_9: adicionar_segmento(&segmentos_cobra, -3, &cores); break;
-                case SDLK_EQUALS: delay+=1; printf("delary: %d\n", delay); break;//std::cout << "delay: " << delay << "\n"; break;
-                case SDLK_MINUS: if(delay>0) delay-=1; printf("delary: %d\n", delay); break;
-                case 'p': ultima_direcao=-1; break;
-                case 'c': modo_de_piscar = !modo_de_piscar; break;
-                case 'v': frequencia++; break;
-                case 'b': if(frequencia>1) frequencia--; break;
-            }
+            executarControles(evento.key.keysym.sym);
         }
     }
 
@@ -198,7 +203,7 @@ int main(int argc, char* argv[]) {
 	//Loop principal
     struct Context context;
 
-    emscripten_set_main_loop_arg(callback, &context, -1, 1);
+    emscripten_set_main_loop_arg(loopPrincipal, &context, -1, 1);
 	
 	//Liberando memoria
 	SDL_DestroyRenderer(renderer);

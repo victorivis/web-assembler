@@ -10,29 +10,18 @@
   padding: none;
 }
 
-#game{
-    display: flex;
-    flex-wrap: wrap;
-
-    justify-content: center; 
-}
-
-.emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: inline-block; }
-#controls{
-    padding: 10px;
-    border-right: 1px solid black;
-    border-top: 1px solid black;
-    border-bottom: 1px solid black;
-}
-
-#controls p{
-    margin: 0;
-}
-
+.emscripten { padding-right: 0; margin-left: auto; margin-right: auto; display: block; }
 div.emscripten { text-align: center; }
 div.emscripten_border { border: 1px solid black; }
 /* the canvas *must not* have any border or padding, or mouse coords will be wrong */
 canvas.emscripten { border: 0px none; background-color: black; }
+
+#emscripten_logo {
+  display: inline-block;
+  margin: 0;
+  padding: 6px;
+  width: 265px;
+}
 
 .spinner {
   height: 30px;
@@ -88,9 +77,17 @@ canvas.emscripten { border: 0px none; background-color: black; }
   width: 300px;
 }
 
+#controls {
+  display: inline-block;
+  float: right;
+  vertical-align: top;
+  margin-top: 30px;
+  margin-right: 20px;
+}
+
 #output {
-  width: 1250px;
-  height: 150px;
+  width: 100%;
+  height: 150px;  /* Ajuste a altura conforme necessário */
   margin: 0 auto;
   margin-top: 10px;
   border-left: 0px;
@@ -102,24 +99,8 @@ canvas.emscripten { border: 0px none; background-color: black; }
   color: white;
   font-family: 'Lucida Console', Monaco, monospace;
   outline: none;
-  overflow-y: hidden;
+  overflow-y: auto;
   resize: none;
-}
-
-@media (max-width: 1250px) {
-    #controls{
-        border-left: 1px solid black;
-        border-top: 0px;
-        width: 980px;
-    }
-
-    .emscripten{
-        border: 1px solid black;
-    }
-
-    output{
-        width: 1000px;
-    }
 }
 
 </style>
@@ -127,32 +108,20 @@ canvas.emscripten { border: 0px none; background-color: black; }
   <body>
     <div class="spinner" id='spinner'></div>
     <div class="emscripten" id="status">Downloading...</div>
-    
+
+    <span id='controls'>
+      <span><input type="checkbox" id="resize">Resize canvas</span>
+      <span><input type="checkbox" id="pointerLock" checked>Lock/hide mouse pointer &nbsp;&nbsp;&nbsp;</span>
+    </span>
+
     <div class="emscripten">
       <progress value="0" max="100" id="progress" hidden=1></progress>
     </div>
 
-    <div id="game">
-        <div class="emscripten_border">
-            <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
-        </div>
-        <span id="controls">
-            <h3>Controles</h3>
-            <p><strong>1</strong> ⏻ Restrição de movimento</p>
-            <p><strong>2</strong> Aumenta a velocidade</p>        
-            <p><strong>3</strong> Diminui a velocidade</p>
-            <p><strong>4</strong> Descolorir cobra</p>
-            <p><strong>5</strong> Colorir cobra</p>
-            <p><strong>6</strong> Fazer piscar</p>
-            <p><strong>7</strong> ⏻ Desmenbramento Atômico!</p>
-            <p><strong>8</strong> Aumenta o tamanho da cobra</p>
-            <p><strong>9</strong> Diminui o tamanho da cobra</p>
-            <p><strong>=</strong> Diminui a taxa de fps</p>
-            <p><strong>-</strong> Aumenta a taxa de fps</p>
-        </span>
+    <div class="emscripten_border">
+      <canvas class="emscripten" id="canvas" oncontextmenu="event.preventDefault()" tabindex=-1></canvas>
     </div>
-    <textarea id="output" rows="8"></textarea>
-    
+    <textarea id="output" rows="2"></textarea>
 
     <script type='text/javascript'>
       var statusElement = document.getElementById('status');
@@ -170,7 +139,7 @@ canvas.emscripten { border: 0px none; background-color: black; }
             //text = text.replace(/</g, "&lt;");
             //text = text.replace(/>/g, "&gt;");
             //text = text.replace('\n', '<br>', 'g');
-            //console.log(text);
+            console.log(text);
             if (element) {
               element.value += text + "\n";
               element.scrollTop = element.scrollHeight; // focus on bottom
