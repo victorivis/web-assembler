@@ -28,20 +28,26 @@ SDL_Event evento;
 int ultima_direcao=3;
 int rodar=1;
 int contador=0;
+int gerar_maca=1;
 
 SDL_Window* window = NULL;
 SDL_Renderer* renderer = NULL;
 
 SDL_Rect* segmentos_cobra;
 Trio* cores;
+SDL_Rect maca;
+SDL_Rect antimaca;
 
 void adicionar_segmento(SDL_Rect** cobra, int num, Trio** cores){
 	if(num_segmentos+num > 0){
+        int ultimo_segmento_x = (*cobra)[num_segmentos-1].x;
+        int ultimo_segmento_y = (*cobra)[num_segmentos-1].y;
+
 		*cobra = realloc(*cobra, sizeof(SDL_Rect) * (num_segmentos+num));
 		*cores = realloc(*cores, sizeof(Trio) * (num_segmentos+num));
 		for(int i=num_segmentos; i<num_segmentos+num; i++){
-			(*cobra)[i].x = 0;
-			(*cobra)[i].y = 0;
+			(*cobra)[i].x = ultimo_segmento_x;
+			(*cobra)[i].y = ultimo_segmento_y;
 			(*cobra)[i].h = TAM_COBRA;
 			(*cobra)[i].w = TAM_COBRA;
 			
@@ -88,6 +94,19 @@ void mover_cobra(SDL_Rect* cobra, int direcao){
 		case 2: cobra[0].x = (cobra[0].x+VEL+WIDTH)%WIDTH; break;	
 		case 3: cobra[0].x = (cobra[0].x-VEL+WIDTH)%WIDTH; break;
 	}
+
+    if(gerar_maca && SDL_HasIntersection(segmentos_cobra, &maca)){
+        maca.x = rand()%(WIDTH/TAM_COBRA)*TAM_COBRA;
+        maca.y = rand()%(HEIGHT/TAM_COBRA)*TAM_COBRA;
+        adicionar_segmento(&segmentos_cobra, 2, &cores);
+    }
+
+    if(gerar_maca && SDL_HasIntersection(segmentos_cobra, &antimaca)){
+        antimaca.x = rand()%(WIDTH/TAM_COBRA)*TAM_COBRA;
+        antimaca.y = rand()%(HEIGHT/TAM_COBRA)*TAM_COBRA;
+        adicionar_segmento(&segmentos_cobra, -5, &cores);
+        printf("Ops! tamanho: %d\n", num_segmentos);
+    }
 }
 
 void andar_cores(Trio** cores){
@@ -131,6 +150,7 @@ void executarControles(char c){
         case SDLK_9: adicionar_segmento(&segmentos_cobra, -3, &cores); break;
         case SDLK_EQUALS: delay+=1; printf("delay: %d\n", delay); break;
         case SDLK_MINUS: if(delay>0) delay-=1; printf("delay: %d\n", delay); break;
+        case 'm': gerar_maca = !gerar_maca; break;
         case 'p': ultima_direcao=-1; break;
         case 'c': modo_de_piscar = !modo_de_piscar; break;
         case 'v': frequencia++; break;
@@ -167,8 +187,14 @@ void loopPrincipal(void* arg){
 
     for(int i=0; i<num_segmentos; i++){
         SDL_SetRenderDrawColor(renderer, cores[i].r, cores[i].g, cores[i].b, 255);
-        //SDL_SetRenderDrawColor(renderer, rand()%256, rand()%256, rand()%256, 255);
         SDL_RenderFillRect(renderer, &segmentos_cobra[i]);
+    }
+    if(gerar_maca){
+        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 255);
+        SDL_RenderFillRect(renderer, &maca);
+
+        SDL_SetRenderDrawColor(renderer, 0, 0, 255, 255);
+        SDL_RenderFillRect(renderer, &antimaca);
     }
     SDL_RenderPresent(renderer);
 
@@ -195,7 +221,13 @@ int main(int argc, char* argv[]) {
 		Trio t = {rand()%256, rand()%256, rand()%256};
 		cores[i] = t;
 	}
-	//segmentos_cobra.push_back({100, 100, TAM_COBRA, TAM_COBRA});
+
+    maca.x = rand()%(WIDTH/TAM_COBRA)*TAM_COBRA;
+    maca.y = rand()%(HEIGHT/TAM_COBRA)*TAM_COBRA;
+    antimaca.x = rand()%(WIDTH/TAM_COBRA)*TAM_COBRA;
+    antimaca.y = rand()%(HEIGHT/TAM_COBRA)*TAM_COBRA;
+    antimaca.w = maca.w = TAM_COBRA;
+    antimaca.h = maca.h = TAM_COBRA;
 
 	SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 	SDL_RenderClear(renderer);
