@@ -5,6 +5,10 @@
 #include <emscripten/emscripten.h>
 #endif
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
+
 Game* globalGameInstance = nullptr;
 
 Game::Game() : _running(true) {
@@ -23,7 +27,7 @@ void Game::helloWorld() {
 void Game::loopPrincipal() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-        if (event.type == SDL_QUIT) {
+        if (event.type == SDL_EVENT_QUIT) {
           #ifdef __EMSCRIPTEN__
             emscripten_cancel_main_loop();
           #endif

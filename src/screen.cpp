@@ -3,23 +3,21 @@
 #include <iostream>
 
 Screen::Screen(): _WIDTH(720), _HEIGHT(480) {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) != 0) {
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) == false) {
+        std::cerr << "SDL_Init failed: " << SDL_GetError() << std::endl; // Debug no console
         throw std::runtime_error(std::string("Failed to initialize SDL: ") + SDL_GetError());
     }
 
-    _window = SDL_CreateWindow("Reborn",
-                               SDL_WINDOWPOS_CENTERED,
-                               SDL_WINDOWPOS_CENTERED,
-                               _WIDTH,
-                               _HEIGHT,
-                               SDL_WINDOW_RESIZABLE);
+    _window = SDL_CreateWindow("Reborn", _WIDTH, _HEIGHT, SDL_WINDOW_RESIZABLE);
     if (!_window) {
+        std::cerr << "SDL_CreateWindow failed: " << SDL_GetError() << std::endl; // Debug
         SDL_Quit();
         throw std::runtime_error(std::string("Failed to create window: ") + SDL_GetError());
     }
 
-    _renderer = SDL_CreateRenderer(_window, -1, SDL_RENDERER_ACCELERATED);
+    _renderer = SDL_CreateRenderer(_window, NULL);
     if (!_renderer) {
+        std::cerr << "SDL_CreateRenderer failed: " << SDL_GetError() << std::endl; // Debug
         SDL_DestroyWindow(_window);
         SDL_Quit();
         throw std::runtime_error(std::string("Failed to create renderer: ") + SDL_GetError());

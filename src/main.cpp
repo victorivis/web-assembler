@@ -2,6 +2,7 @@
 #ifdef __EMSCRIPTEN__ 
 #include <emscripten/emscripten.h>
 #endif
+#include <SDL3/SDL_main.h>
 
 int main(int argc, char* argv[]){
   Game jogo;
