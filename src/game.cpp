@@ -40,10 +40,10 @@ void Game::loopPrincipal() {
     float green = 0.5f + 0.5f * std::sin(now + M_PI * 2 / 3);
     float blue  = 0.5f + 0.5f * std::sin(now + M_PI * 4 / 3);
     
-    SDL_SetRenderDrawColor(globalGameInstance->screen.getRenderer(),
-                           static_cast<Uint8>(red * 255),
-                           static_cast<Uint8>(green * 255),
-                           static_cast<Uint8>(blue * 255),
+    SDL_SetRenderDrawColorFloat(globalGameInstance->screen.getRenderer(),
+                           red,
+                           green,
+                           blue,
                            255);
     SDL_RenderClear(globalGameInstance->screen.getRenderer());
     SDL_RenderPresent(globalGameInstance->screen.getRenderer());
