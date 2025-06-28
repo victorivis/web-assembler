@@ -1,0 +1,11 @@
+.vscode
+
+*.pdf
+*.txt
+
+*.html
+*.wasm
+*.js
+
+*.o
+*.exe
